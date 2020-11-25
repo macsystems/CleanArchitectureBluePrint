@@ -1,2 +1,3 @@
-include ':app'
+include ':example'
+include ':lib'
 rootProject.name = "Clean Architecture Base"
