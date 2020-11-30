@@ -5,11 +5,16 @@ import com.squareup.moshi.Moshi
 import de.hohl.example.rest.BackendApi
 import okhttp3.OkHttpClient
 import org.koin.core.context.startKoin
+import org.koin.core.logger.EmptyLogger
+import org.koin.core.logger.Level
+import org.koin.core.logger.Level.*
+import org.koin.core.logger.Logger
 import org.koin.core.module.Module
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
+import timber.log.Timber
 
 
 internal object Qualifiers {
@@ -22,7 +27,11 @@ internal object Qualifiers {
 object KoinSetup {
     fun setup(applicationContext: Application) {
         startKoin {
-            printLogger()
+            if (BuildConfig.DEBUG) {
+                logger(TimberLogger(DEBUG))
+            } else {
+                logger(EmptyLogger())
+            }
             applicationContextModule(applicationContext)
             networkModule()
         }
@@ -35,6 +44,8 @@ object KoinSetup {
             single(Qualifiers.Retrofit) {
                 Retrofit.Builder().addConverterFactory(MoshiConverterFactory.create(get()))
             }
+            single(Qualifiers.Api) { buildApi(get()) }
+
         }
     }
 
@@ -45,7 +56,25 @@ object KoinSetup {
     }
 
 
-    private fun buildApi(retrofit: Retrofit) {
-        retrofit.create(BackendApi::class.java)
+    private fun buildApi(retrofit: Retrofit): BackendApi {
+        return retrofit.create(BackendApi::class.java)
+    }
+}
+
+/**
+ * Koin Logger using Timber
+ */
+class TimberLogger(level: Level) : Logger(level) {
+
+    private val timber = Timber.plant(Timber.DebugTree())
+
+    override fun log(level: Level, msg: String) {
+        when (level) {
+            INFO -> Timber.i(msg)
+            DEBUG -> Timber.d(msg)
+            ERROR -> Timber.e(msg)
+            NONE -> {
+            }
+        }.exhaustive
     }
 }
