@@ -31,10 +31,10 @@ object KoinSetup {
     private fun networkModule(): Module {
         return module {
             single(Qualifiers.OkHttpClient) { OkHttpClient() }
-            single(Qualifiers.Retrofit) {
-                Retrofit.Builder().addConverterFactory(MoshiConverterFactory.create())
-            }
             single(Qualifiers.Moshi) { Moshi.Builder() }
+            single(Qualifiers.Retrofit) {
+                Retrofit.Builder().addConverterFactory(MoshiConverterFactory.create(get()))
+            }
         }
     }
 
