@@ -10,11 +10,12 @@ class MainViewModel(private val backendApi: BackendApi) : ViewModel() {
     fun ping() {
         viewModelScope.launch {
             val ping = backendApi.ping()
+
         }
     }
 
     fun coinList() {
-        viewModelScope.launch {
+        viewModelScope.launch() {
             val coinsList = backendApi.coinsList()
 
         }

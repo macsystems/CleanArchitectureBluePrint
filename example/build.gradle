@@ -58,10 +58,13 @@ dependencies {
     // Koin for Kotlin apps
     final koin_version = '2.2.0'
     implementation "org.koin:koin-core:$koin_version"
+    implementation "org.koin:koin-androidx-viewmodel:$koin_version"
+    implementation "org.koin:koin-android-scope:$koin_version"
 
     final retrofit_version = '2.3.0'
     implementation "com.squareup.retrofit2:retrofit:$retrofit_version"
     implementation "com.squareup.retrofit2:converter-moshi:$retrofit_version"
+
 
     api "com.jakewharton.timber:timber:4.7.1"
 
