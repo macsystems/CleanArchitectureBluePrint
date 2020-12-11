@@ -4,7 +4,10 @@ import android.app.Application
 import android.content.Context
 import com.squareup.moshi.Moshi
 import de.hohl.example.rest.BackendApi
+import okhttp3.Interceptor
 import okhttp3.OkHttpClient
+import okhttp3.logging.HttpLoggingInterceptor
+import org.koin.android.ext.koin.androidContext
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.core.context.startKoin
 import org.koin.core.logger.EmptyLogger
@@ -31,13 +34,13 @@ internal object Qualifiers {
 object KoinSetup {
     fun setup(applicationContext: Application) {
         startKoin {
+            androidContext(applicationContext)
             if (BuildConfig.DEBUG) {
                 logger(TimberLogger(DEBUG))
             } else {
                 logger(EmptyLogger())
             }
             modules(
-                applicationContextModule(applicationContext),
                 networkModule(),
                 viewModelModule(applicationContext)
             )
@@ -52,13 +55,23 @@ object KoinSetup {
 
     private fun networkModule(): Module {
         return module {
-
-            single(Qualifiers.OkHttpClient) { OkHttpClient() }
+            single(Qualifiers.OkHttpClient) {
+                OkHttpClient.Builder()
+                    .addInterceptor(httpLogger()).build()
+            }
             single(Qualifiers.Moshi) { Moshi.Builder().build() }
             single(Qualifiers.Api) {
                 setupRetrofit(client = get(Qualifiers.OkHttpClient), moshi = get(Qualifiers.Moshi))
             }
+        }
+    }
 
+    private fun httpLogger(): Interceptor = when (BuildConfig.DEBUG) {
+        true -> {
+            HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY)
+        }
+        false -> {
+            HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.NONE)
         }
     }
 
@@ -67,21 +80,12 @@ object KoinSetup {
             .addConverterFactory(MoshiConverterFactory.create(moshi)).build()
             .create(BackendApi::class.java)
     }
-
-    private fun applicationContextModule(applicationContext: Application): Module {
-        return module {
-            single { applicationContext }
-        }
-    }
 }
 
 /**
  * Koin Logger using Timber
  */
 internal class TimberLogger(level: Level) : Logger(level) {
-
-    private val timber = Timber.plant(Timber.DebugTree())
-
     override fun log(level: Level, msg: String) {
         when (level) {
             INFO -> Timber.i(msg)
@@ -92,3 +96,5 @@ internal class TimberLogger(level: Level) : Logger(level) {
         }.exhaustive
     }
 }
+
+

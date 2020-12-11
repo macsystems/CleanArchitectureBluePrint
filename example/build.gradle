@@ -36,8 +36,8 @@ android {
 }
 
 dependencies {
-
     project(":lib")
+    api project(':ModuleVersion')
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
 
     implementation 'androidx.core:core-ktx:1.3.2'
@@ -54,21 +54,31 @@ dependencies {
     implementation "com.squareup.moshi:moshi-kotlin:$moshi_version"
     kapt "com.squareup.moshi:moshi-kotlin-codegen:$moshi_version"
 
-    implementation "com.squareup.okhttp3:okhttp:4.9.0"
+    final okttp_version = '4.9.0'
+    implementation "com.squareup.okhttp3:okhttp:$okttp_version"
+    implementation "com.squareup.okhttp3:logging-interceptor:$okttp_version"
     // Koin for Kotlin apps
     final koin_version = '2.2.0'
     implementation "org.koin:koin-core:$koin_version"
     implementation "org.koin:koin-androidx-viewmodel:$koin_version"
     implementation "org.koin:koin-android-scope:$koin_version"
 
-    final retrofit_version = '2.3.0'
+    final retrofit_version = '2.9.0'
     implementation "com.squareup.retrofit2:retrofit:$retrofit_version"
     implementation "com.squareup.retrofit2:converter-moshi:$retrofit_version"
+    final calladapter_version = '4.0.1'
+    implementation "com.github.haroldadmin:NetworkResponseAdapter:$calladapter_version"
+
+    //Kotlin Coroutines
+    final kotlinCoroutineVersion = '1.4.2'
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$kotlinCoroutineVersion"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinCoroutineVersion"
 
 
     api "com.jakewharton.timber:timber:4.7.1"
 
     testImplementation 'junit:junit:4.13.1'
+    testImplementation 'com.willowtreeapps.assertk:assertk-jvm:0.23'
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
 }
