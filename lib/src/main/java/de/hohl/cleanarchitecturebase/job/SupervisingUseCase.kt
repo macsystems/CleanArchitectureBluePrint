@@ -8,7 +8,7 @@ import kotlin.coroutines.CoroutineContext
  * When parent Jobs fail, others will still executed
  */
 abstract class SupervisingUseCase<T, Params>(private val dispatcher: CoroutineContextProvider) :
-    CoroutineScope {
+    CoroutineScope, UseCase<T, R> {
 
     private var job: Job = SupervisorJob()
 

@@ -1,7 +1,6 @@
 package de.hohl.example
 
 import android.app.Application
-import android.content.Context
 import com.squareup.moshi.Moshi
 import de.hohl.example.rest.BackendApi
 import okhttp3.Interceptor
@@ -9,6 +8,7 @@ import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import org.koin.android.ext.koin.androidContext
 import org.koin.androidx.viewmodel.dsl.viewModel
+import org.koin.core.context.loadKoinModules
 import org.koin.core.context.startKoin
 import org.koin.core.logger.EmptyLogger
 import org.koin.core.logger.Level
@@ -32,7 +32,7 @@ internal object Qualifiers {
 }
 
 object KoinSetup {
-    fun setup(applicationContext: Application) {
+    fun setup(applicationContext: Application, moduleOverrides: List<Module> = emptyList()) {
         startKoin {
             androidContext(applicationContext)
             if (BuildConfig.DEBUG) {
@@ -42,12 +42,15 @@ object KoinSetup {
             }
             modules(
                 networkModule(),
-                viewModelModule(applicationContext)
+                viewModelModule()
             )
+            if (moduleOverrides.isNotEmpty()) {
+                loadKoinModules(moduleOverrides)
+            }
         }
     }
 
-    private fun viewModelModule(applicationContext: Context): Module {
+    private fun viewModelModule(): Module {
         return module {
             viewModel { MainViewModel(backendApi = get(Qualifiers.Api)) }
         }
@@ -71,9 +74,9 @@ object KoinSetup {
             HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY)
         }
         false -> {
-            HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.NONE)
+            HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY)
         }
-    }
+    }.exhaustive
 
     private fun setupRetrofit(client: OkHttpClient, moshi: Moshi): BackendApi {
         return Retrofit.Builder().baseUrl(baseUrl).client(client)

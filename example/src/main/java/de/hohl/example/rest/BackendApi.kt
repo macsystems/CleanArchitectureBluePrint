@@ -1,5 +1,6 @@
 package de.hohl.example.rest
 
+import de.hohl.example.response.Coin
 import de.hohl.example.response.Coins
 import de.hohl.example.response.PingResponse
 import retrofit2.Response
@@ -17,7 +18,7 @@ interface BackendApi {
 
     @Headers("Accept: application/json")
     @GET("coins/list")
-    suspend fun coinsList(): Response<Coins>
+    suspend fun coinsList(): Response<List<Coin>>
 /*
     @Headers("Accept: application/json")
     @GET("/coins/{id}/market_chart")
