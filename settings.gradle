@@ -1,3 +1,4 @@
 rootProject.name = "Clean Architecture Base"
 include ':example', ':lib'
 include ':ModuleVersion'
+include ':backend'

@@ -2,6 +2,8 @@ package de.hohl.example
 
 import android.app.Application
 import com.squareup.moshi.Moshi
+import de.hohl.cleanarchitecturebase.job.CoroutineContextProvider
+import de.hohl.cleanarchitecturebase.job.DefaultContextProvider
 import de.hohl.example.rest.BackendApi
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
@@ -32,7 +34,7 @@ internal object Qualifiers {
 }
 
 object KoinSetup {
-    fun setup(applicationContext: Application, moduleOverrides: List<Module> = emptyList()) {
+    fun setup(applicationContext: Application, testModuleOverrides: List<Module> = emptyList()) {
         startKoin {
             androidContext(applicationContext)
             if (BuildConfig.DEBUG) {
@@ -41,11 +43,12 @@ object KoinSetup {
                 logger(EmptyLogger())
             }
             modules(
+                coroutinesModule(),
                 networkModule(),
                 viewModelModule()
             )
-            if (moduleOverrides.isNotEmpty()) {
-                loadKoinModules(moduleOverrides)
+            if (testModuleOverrides.isNotEmpty()) {
+                loadKoinModules(testModuleOverrides)
             }
         }
     }
@@ -56,33 +59,40 @@ object KoinSetup {
         }
     }
 
-    private fun networkModule(): Module {
+    private fun coroutinesModule(): Module {
         return module {
-            single(Qualifiers.OkHttpClient) {
-                OkHttpClient.Builder()
-                    .addInterceptor(httpLogger()).build()
-            }
-            single(Qualifiers.Moshi) { Moshi.Builder().build() }
-            single(Qualifiers.Api) {
-                setupRetrofit(client = get(Qualifiers.OkHttpClient), moshi = get(Qualifiers.Moshi))
-            }
+            single<CoroutineContextProvider> { DefaultContextProvider }
         }
     }
+}
 
-    private fun httpLogger(): Interceptor = when (BuildConfig.DEBUG) {
-        true -> {
-            HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY)
-        }
-        false -> {
-            HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY)
-        }
-    }.exhaustive
 
-    private fun setupRetrofit(client: OkHttpClient, moshi: Moshi): BackendApi {
-        return Retrofit.Builder().baseUrl(baseUrl).client(client)
-            .addConverterFactory(MoshiConverterFactory.create(moshi)).build()
-            .create(BackendApi::class.java)
+private fun networkModule(): Module {
+    return module {
+        single(Qualifiers.OkHttpClient) {
+            OkHttpClient.Builder()
+                .addInterceptor(httpLogger()).build()
+        }
+        single(Qualifiers.Moshi) { Moshi.Builder().build() }
+        single(Qualifiers.Api) {
+            setupRetrofit(client = get(Qualifiers.OkHttpClient), moshi = get(Qualifiers.Moshi))
+        }
     }
+}
+
+private fun httpLogger(): Interceptor = when (BuildConfig.DEBUG) {
+    true -> {
+        HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY)
+    }
+    false -> {
+        HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY)
+    }
+}.exhaustive
+
+private fun setupRetrofit(client: OkHttpClient, moshi: Moshi): BackendApi {
+    return Retrofit.Builder().baseUrl(baseUrl).client(client)
+        .addConverterFactory(MoshiConverterFactory.create(moshi)).build()
+        .create(BackendApi::class.java)
 }
 
 /**

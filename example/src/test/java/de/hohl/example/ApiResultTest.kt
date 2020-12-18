@@ -42,7 +42,6 @@ class ApiResultTest {
         val result = exception.asApiResult()
 
         assertThat(result).isInstanceOf(ApiResult.FatalError::class.java)
-        result as ApiResult.FatalError
         assertThat(result.failure).isInstanceOf(IOException::class.java)
         assertThat(result.failure.message).isEqualTo("some problem")
 
