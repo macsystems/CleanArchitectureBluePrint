@@ -2,6 +2,7 @@ package de.hohl.example
 
 import android.app.Application
 import com.squareup.moshi.Moshi
+import de.hohl.backend.response.StatusAdapter
 import de.hohl.cleanarchitecturebase.job.CoroutineContextProvider
 import de.hohl.cleanarchitecturebase.job.DefaultContextProvider
 import de.hohl.example.rest.BackendApi
@@ -23,7 +24,8 @@ import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
 import timber.log.Timber
 
-internal const val baseUrl = "https://api.coingecko.com/api/v3/"
+//internal const val baseUrl = "https://api.coingecko.com/api/v3/"
+internal const val baseUrlKraken = "https://api.kraken.com/0/"
 
 internal object Qualifiers {
     val BaseUrl = named("backend url")
@@ -90,7 +92,7 @@ private fun httpLogger(): Interceptor = when (BuildConfig.DEBUG) {
 }.exhaustive
 
 private fun setupRetrofit(client: OkHttpClient, moshi: Moshi): BackendApi {
-    return Retrofit.Builder().baseUrl(baseUrl).client(client)
+    return Retrofit.Builder().baseUrl(baseUrlKraken).client(client)
         .addConverterFactory(MoshiConverterFactory.create(moshi)).build()
         .create(BackendApi::class.java)
 }

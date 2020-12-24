@@ -40,7 +40,7 @@ inline fun <reified T : Any> Response<T>.asApiResult(): ApiResult<T> {
 
 /**
  * Converts any Exception into an FatalError
- * TODO: Limiting the scope would be nice in so way
+ * TODO: Limiting the scope would be nice in some way
  */
 fun Throwable.asApiResult(): ApiResult.FatalError {
     return ApiResult.FatalError(this)
