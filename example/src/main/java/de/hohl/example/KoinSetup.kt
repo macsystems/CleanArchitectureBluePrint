@@ -75,7 +75,7 @@ private fun networkModule(): Module {
             OkHttpClient.Builder()
                 .addInterceptor(httpLogger()).build()
         }
-        single(Qualifiers.Moshi) { Moshi.Builder().build() }
+        single(Qualifiers.Moshi) { Moshi.Builder().add(StatusAdapter()).build() }
         single(Qualifiers.Api) {
             setupRetrofit(client = get(Qualifiers.OkHttpClient), moshi = get(Qualifiers.Moshi))
         }

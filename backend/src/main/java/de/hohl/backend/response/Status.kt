@@ -24,7 +24,7 @@ class StatusAdapter {
             "limit_only" -> Status.LimitOnly
             "maintenance" -> Status.Maintenance
             "post_only" -> Status.PostOnly
-            else -> throw IllegalArgumentException(name)
+            else -> throw IllegalArgumentException("Unknown status: $name")
         }
     }
 

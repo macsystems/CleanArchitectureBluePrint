@@ -1,10 +1,7 @@
 package de.hohl.example
 
 import assertk.assertThat
-import assertk.assertions.isEqualTo
-import assertk.assertions.isGreaterThan
-import assertk.assertions.isInstanceOf
-import assertk.assertions.isNotEmpty
+import assertk.assertions.*
 import de.hohl.backend.response.KrakenResult
 import kotlinx.coroutines.runBlocking
 import org.junit.Test
@@ -22,10 +19,22 @@ class BackendTest : BaseTest() {
             assertThat(success.payload.error.isEmpty()).isEqualTo(true)
             with(success.payload.result) {
                 assertThat(rfc1123).isNotEmpty()
-                assertThat(unixtime).isGreaterThan(0)
+                assertThat(unixTime).isGreaterThan(0)
             }
         }
     }
+
+    @Test
+    fun serverStatus() = runBlocking<Unit> {
+        with(BackendApiTarget().target) {
+            val systemStatus = systemStatus().asApiResult()
+            systemStatus as ApiResult.Success
+            assertThat(systemStatus.payload.hasResult()).isTrue()
+            assertThat(systemStatus.payload.hasError()).isFalse()
+            assertThat(systemStatus.payload.result.timestamp).isNotEmpty()
+        }
+    }
+
 
     @Test
     fun ticker() = runBlocking<Unit> {
